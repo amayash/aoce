@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{default}">
+<body>
+
+<div class="container" layout:fragment="content">
+    <h2 class="text-center">Заявки</h2>
+    <div class="d-flex align-items-center mb-4">
+        <label for="currentType" class="form-label me-3 mb-0">Выберите тип техники:</label>
+        <select id="currentType" class="form-select w-auto" onchange="changeUrl()">
+            <option value="/computer/request" th:selected="${currentType == 'COMPUTER'}">Компьютеры</option>
+            <option value="/printer/request" th:selected="${currentType == 'PRINTER'}">Принтеры</option>
+        </select>
+    </div>
+    <center>
+        <div>
+            <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
+            <div>
+                <a th:if="${currentPage > 0}"
+                   th:href="@{'/' + ${currentType.toLowerCase()} + '/request?page=' + ${currentPage - 1}}">Назад</a>
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{'/' + ${currentType.toLowerCase()} + '/request?page=' + ${currentPage + 1}}">Вперед</a>
+            </div>
+        </div>
+    </center>
+    <!-- Таблица заявок -->
+    <table class="table table-bordered shadow-sm rounded">
+        <thead class="table-light">
+        <tr>
+            <th scope="col">Название оборудования (старое)</th>
+            <th scope="col">Название оборудования (новое)</th>
+            <th scope="col">Тип заявки</th>
+            <th scope="col">Статус</th>
+            <th scope="col">Дата создания</th>
+            <th scope="col">Дата обработки</th>
+            <th scope="col">Детали</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="request : ${requests}">
+            <td>
+                <span th:text="${request.equipment != null ? request.equipment.name : ''}"></span>
+            </td>
+            <td>
+                <span th:text="${request.name}"></span>
+            </td>
+            <td>
+                <span th:text="${request.requestType.value}"></span>
+            </td>
+            <td>
+                <span th:text="${request.status.value}"></span>
+            </td>
+            <td>
+                <span th:text="${request.createdAt}"></span>
+            </td>
+            <td>
+                <span th:text="${request.processedAt}"></span>
+            </td>
+            <td>
+                <a th:href="@{/request/{id}(id=${request.id})}" class="btn btn-primary btn-sm">Перейти</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <center>
+        <div>
+            <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
+            <div>
+                <a th:if="${currentPage > 0}"
+                   th:href="@{'/' + ${currentType.toLowerCase()} + '/request?page=' + ${currentPage - 1}}">Назад</a>
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{'/' + ${currentType.toLowerCase()} + '/request?page=' + ${currentPage + 1}}">Вперед</a>
+            </div>
+        </div>
+    </center>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        function changeUrl() {
+            window.location.href = document.getElementById("currentType").value;
+        }
+    </script>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{default}">
+<head>
+    <title>Создание/Редактирование заявки</title>
+</head>
+<body>
+<div class="container" layout:fragment="content" style="max-width: 800px;">
+    <h2 class="mb-4 text-center">Создание/Редактирование заявки на оборудование</h2>
+    <form th:action="@{${actionUrl}}" method="post">
+
+        <!-- Поля для оборудования -->
+        <div class="mb-3">
+            <label for="name" class="form-label">Название</label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="Введите название"
+                   th:value="*{equipment.name}" required/>
+        </div>
+        <div class="mb-3">
+            <label for="serialNumber" class="form-label">Серийный номер</label>
+            <input type="text" id="serialNumber" name="serialNumber" class="form-control"
+                   placeholder="Введите серийный номер" th:value="*{equipment.serialNumber}" required/>
+        </div>
+        <div class="mb-3">
+            <label for="inventoryNumber" class="form-label">Инвентарный номер</label>
+            <input type="text" id="inventoryNumber" name="inventoryNumber" class="form-control"
+                   placeholder="Введите инвентарный номер" th:value="*{equipment.inventoryNumber}" required/>
+        </div>
+        <div class="mb-3">
+            <label for="manufacturer" class="form-label">Производитель</label>
+            <input type="text" id="manufacturer" name="manufacturer" class="form-control"
+                   placeholder="Введите производителя" th:value="*{equipment.manufacturer}" required/>
+        </div>
+        <div class="mb-3">
+            <label for="model" class="form-label">Модель</label>
+            <input type="text" id="model" name="model" class="form-control" placeholder="Введите модель"
+                   th:value="*{equipment.model}" required/>
+        </div>
+        <div class="mb-3" th:if="${!actionUrl.contains('edit')}">
+            <label for="purchaseDate" class="form-label">Дата покупки</label>
+            <input type="date" id="purchaseDate" name="purchaseDate" class="form-control"
+                   th:value="*{equipment.purchaseDate}" required/>
+        </div>
+        <div class="mb-3" th:if="${!actionUrl.contains('edit')}">
+            <label for="warrantyExpiration" class="form-label">Дата окончания гарантии</label>
+            <input type="date" id="warrantyExpiration" name="warrantyExpiration" class="form-control"
+                   th:value="*{equipment.warrantyExpiration}" required/>
+        </div>
+        <div class="mb-3">
+            <label for="status" class="form-label">Статус</label>
+            <select id="status" class="form-control" th:field="*{equipment.status}" required>
+                <option th:each="status : ${T(com.spring.aoce.entity.enums.EquipmentStatus).values()}"
+                        th:value="${status}"
+                        th:text="${status.value}"></option>
+            </select>
+        </div>
+
+        <!-- Поля для компьютера -->
+        <div th:if="${actionUrl.startsWith('/computer')}">
+            <div class="mb-3">
+                <label for="cpu" class="form-label">CPU</label>
+                <input type="text" id="cpu" name="cpu" class="form-control" placeholder="Введите CPU"
+                       th:value="*{equipment.cpu}"/>
+            </div>
+            <div class="mb-3">
+                <label for="ram" class="form-label">RAM</label>
+                <input type="number" id="ram" name="ram" class="form-control" placeholder="Введите RAM"
+                       th:value="*{equipment.ram}"/>
+            </div>
+            <div class="mb-3">
+                <label for="storage" class="form-label">Хранение</label>
+                <input type="number" id="storage" name="storage" class="form-control" placeholder="Введите память"
+                       th:value="*{equipment.storage}"/>
+            </div>
+            <div class="mb-3">
+                <label for="gpu" class="form-label">GPU</label>
+                <input type="text" id="gpu" name="gpu" class="form-control" placeholder="Введите GPU"
+                       th:value="*{equipment.gpu}"/>
+            </div>
+        </div>
+
+        <!-- Поля для принтера -->
+        <div th:if="${actionUrl.startsWith('/printer')}">
+            <div class="mb-3">
+                <label for="printerType" class="form-label">Тип принтера</label>
+                <select id="printerType" class="form-control" th:field="*{equipment.printerType}">
+                    <option th:each="type : ${T(com.spring.aoce.entity.enums.PrinterType).values()}"
+                            th:value="${type}" th:text="${type.value}"></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="isColor" class="form-label">Цветной</label>
+                <input type="checkbox" id="isColor" name="isColor" class="form-check-input ms-1"
+                       th:checked="*{equipment.isColor}"/>
+            </div>
+            <div class="mb-3">
+                <label for="paperSize" class="form-label">Поддерживаемый размер печати</label>
+                <select id="paperSize" class="form-control" th:field="*{equipment.paperSize}">
+                    <option th:each="size : ${T(com.spring.aoce.entity.enums.PaperSize).values()}"
+                            th:value="${size}" th:text="${size.value}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 mb-3">
+            <button type="submit" class="btn btn-success">Сохранить</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
