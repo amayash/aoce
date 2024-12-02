@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{default}">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <title>Техника</title>
+</head>
+
+<body>
+<div class="container" layout:fragment="content">
+    <h2 class="mb-4">Журнал действий</h2>
+    <center>
+        <div>
+            <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
+            <div>
+                <a th:if="${currentPage > 0}"
+                   th:href="@{'/action-log?page=' + ${currentPage - 1}}">Назад</a>
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{'/action-log?page=' + ${currentPage + 1}}">Вперед</a>
+            </div>
+        </div>
+    </center>
+    <!-- Проверяем, есть ли логи -->
+    <div th:if="${#lists.isEmpty(logs)}">
+        <p class="text-center">Нет записей в журнале действий.</p>
+    </div>
+
+    <!-- Выводим список логов -->
+    <div th:if="${!#lists.isEmpty(logs)}">
+        <table class="table table-bordered shadow-sm rounded">
+            <thead class="table-light">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Тип действия</th>
+                <th scope="col">Время</th>
+                <th scope="col">Пользователь</th>
+                <th scope="col">Номер заявки</th>
+                <th scope="col">Старое значение</th>
+                <th scope="col">Новое значение</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="log : ${logs}">
+                <td th:text="${log.id}"></td>
+                <td th:text="${log.actionType.value}"></td>
+                <td th:text="${log.timestamp}"></td>
+                <td th:text="${log.user}"></td>
+                <td>
+                    <a th:href="@{/request/{id}(id=${log.request})}" th:text="${log.request}"></a>
+                </td>
+                <td>
+                    <button class="btn btn-primary" data-bs-toggle="modal"
+                            th:attr="data-bs-target='#oldModal' + ${log.id}">Смотреть
+                    </button>
+                </td>
+                <td>
+                    <button class="btn btn-primary" data-bs-toggle="modal"
+                            th:attr="data-bs-target='#newModal' + ${log.id}">Смотреть
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <center>
+        <div>
+            <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
+            <div>
+                <a th:if="${currentPage > 0}"
+                   th:href="@{'/action-log?page=' + ${currentPage - 1}}">Назад</a>
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{'/action-log?page=' + ${currentPage + 1}}">Вперед</a>
+            </div>
+        </div>
+    </center>
+    <!-- Модальные окна -->
+    <div th:each="log : ${logs}">
+        <!-- Старое значение -->
+        <div th:attr="id='oldModal' + ${log.id}" class="modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">Старые характеристики</div>
+                    <div class="modal-body">
+                        <div th:if="${log.oldModel != null}">
+                            <div class="card-body">
+                                <p><strong>Название:</strong> <span th:text="${log.oldModel.name}"></span></p>
+                                <p><strong>Серийный номер:</strong> <span th:text="${log.oldModel.serialNumber}"></span>
+                                </p>
+                                <p><strong>Инвентарный номер:</strong> <span
+                                        th:text="${log.oldModel.inventoryNumber}"></span></p>
+                                <p><strong>Производитель:</strong> <span th:text="${log.oldModel.manufacturer}"></span>
+                                </p>
+                                <p><strong>Модель:</strong> <span th:text="${log.oldModel.model}"></span></p>
+                                <p><strong>Дата покупки:</strong> <span th:text="${log.oldModel.purchaseDate}"></span>
+                                </p>
+                                <p><strong>Срок гарантии:</strong> <span
+                                        th:text="${log.oldModel.warrantyExpiration}"></span></p>
+                                <p><strong>Статус:</strong> <span th:text="${log.oldModel.status}"></span></p>
+                                <p><strong>Тип оборудования:</strong> <span
+                                        th:text="${log.oldModel.equipmentType}"></span></p>
+
+                                <!-- Условия по типу оборудования -->
+                                <div th:if="${log.getOldModel() != null and log.getOldModel().getEquipmentType() != null}">
+                                    <div th:if="${log.getOldModel().getEquipmentType().getValue() == 'Компьютер'}">
+                                        <h5>Характеристики компьютера</h5>
+                                        <p><strong>Процессор:</strong> <span th:text="${log.oldModel.cpu}"></span></p>
+                                        <p><strong>Оперативная память (ГБ):</strong> <span
+                                                th:text="${log.oldModel.ram}"></span></p>
+                                        <p><strong>Память (ГБ):</strong> <span th:text="${log.oldModel.storage}"></span>
+                                        </p>
+                                        <p><strong>Графическая карта:</strong> <span
+                                                th:text="${log.oldModel.gpu}"></span></p>
+                                    </div>
+
+                                    <div th:if="${log.getOldModel().getEquipmentType().getValue() == 'Принтер'}">
+                                        <h5>Характеристики принтера</h5>
+                                        <p><strong>Тип принтера:</strong> <span
+                                                th:text="${log.oldModel.printerType}"></span></p>
+                                        <p><strong>Цветной:</strong> <span
+                                                th:text="${log.oldModel.isColor ? 'Да' : 'Нет'}"></span></p>
+                                        <p><strong>Поддерживаемый размер печати:</strong> <span
+                                                th:text="${log.oldModel.paperSize}"></span></p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div th:if="${log.oldModel == null}">
+                            <em>Нет данных</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Новое значение -->
+        <div th:attr="id='newModal' + ${log.id}" class="modal" aria-labelledby="newModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">Новые характеристики</div>
+                    <div class="modal-body">
+                        <div th:if="${log.newModel != null}">
+                            <div class="card-body">
+                                <p><strong>Название:</strong> <span th:text="${log.newModel.name}"></span></p>
+                                <p><strong>Серийный номер:</strong> <span th:text="${log.newModel.serialNumber}"></span>
+                                </p>
+                                <p><strong>Инвентарный номер:</strong> <span
+                                        th:text="${log.newModel.inventoryNumber}"></span></p>
+                                <p><strong>Производитель:</strong> <span th:text="${log.newModel.manufacturer}"></span>
+                                </p>
+                                <p><strong>Модель:</strong> <span th:text="${log.newModel.model}"></span></p>
+                                <p><strong>Дата покупки:</strong> <span th:text="${log.newModel.purchaseDate}"></span>
+                                </p>
+                                <p><strong>Срок гарантии:</strong> <span
+                                        th:text="${log.newModel.warrantyExpiration}"></span></p>
+                                <p><strong>Статус:</strong> <span th:text="${log.newModel.status}"></span></p>
+                                <p><strong>Тип оборудования:</strong> <span
+                                        th:text="${log.newModel.equipmentType}"></span></p>
+
+                                <!-- Условия по типу оборудования -->
+                                <div th:if="${log.getNewModel() != null and log.getNewModel().getEquipmentType() != null}">
+                                    <div th:if="${log.getNewModel().getEquipmentType().getValue() == 'Компьютер'}">
+                                        <h5>Характеристики компьютера</h5>
+                                        <p><strong>Процессор:</strong> <span th:text="${log.newModel.cpu}"></span></p>
+                                        <p><strong>Оперативная память (ГБ):</strong> <span
+                                                th:text="${log.newModel.ram}"></span></p>
+                                        <p><strong>Память (ГБ):</strong> <span th:text="${log.newModel.storage}"></span>
+                                        </p>
+                                        <p><strong>Графическая карта:</strong> <span
+                                                th:text="${log.newModel.gpu}"></span></p>
+                                    </div>
+
+                                    <div th:if="${log.getNewModel().getEquipmentType().getValue() == 'Принтер'}">
+                                        <h5>Характеристики принтера</h5>
+                                        <p><strong>Тип принтера:</strong> <span
+                                                th:text="${log.newModel.printerType}"></span></p>
+                                        <p><strong>Цветной:</strong> <span
+                                                th:text="${log.newModel.isColor ? 'Да' : 'Нет'}"></span></p>
+                                        <p><strong>Поддерживаемый размер печати:</strong> <span
+                                                th:text="${log.newModel.paperSize}"></span></p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div th:if="${log.newModel == null}">
+                            <em>Нет данных</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
