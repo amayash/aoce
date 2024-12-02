@@ -1,12 +1,16 @@
 package com.spring.aoce.service;
 
 import com.opencsv.CSVWriter;
+import com.spring.aoce.dto.ComputerDto;
+import com.spring.aoce.dto.EquipmentDto;
+import com.spring.aoce.dto.PrinterDto;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -24,19 +28,9 @@ public class ReportService {
         exportToCsv(
                 response,
                 "computer_report.csv",
-                new String[]{
-                        "Идентификатор", "Название", "Серийный номер", "Инвентарный номер", "Производитель", "Модель",
-                        "Дата покупки", "Дата окончания гарантии", "Статус", "Процессор",
-                        "Оперативная память (ГБ)", "Хранилище (ГБ)", "Видеокарта"
-                },
+                getComputerHeaders(),
                 computerService.getAll(),
-                computer -> new String[]{
-                        String.valueOf(computer.getId()), computer.getName(), computer.getSerialNumber(),
-                        computer.getInventoryNumber(), computer.getManufacturer(), computer.getModel(),
-                        computer.getPurchaseDate(), computer.getWarrantyExpiration(),
-                        computer.getStatus().getValue(), computer.getCpu(),
-                        String.valueOf(computer.getRam()), String.valueOf(computer.getStorage()), computer.getGpu()
-                }
+                this::mapComputerToData
         );
     }
 
@@ -44,26 +38,16 @@ public class ReportService {
         exportToCsv(
                 response,
                 "printer_report.csv",
-                new String[]{
-                        "Идентификатор", "Название", "Серийный номер", "Инвентарный номер", "Производитель", "Модель",
-                        "Дата покупки", "Дата окончания гарантии", "Статус", "Тип принтера",
-                        "Цветной", "Размер бумаги"
-                },
+                getPrinterHeaders(),
                 printerService.getAll(),
-                printer -> new String[]{
-                        String.valueOf(printer.getId()), printer.getName(), printer.getSerialNumber(),
-                        printer.getInventoryNumber(), printer.getManufacturer(), printer.getModel(),
-                        printer.getPurchaseDate(), printer.getWarrantyExpiration(),
-                        printer.getStatus().getValue(), printer.getPrinterType().getValue(),
-                        printer.getIsColor() ? "Да" : "Нет", printer.getPaperSize().getValue()
-                }
+                this::mapPrinterToData
         );
     }
 
     private <T> void exportToCsv(
             HttpServletResponse response,
             String fileName,
-            String[] headers,
+            ArrayList<String> headers,
             List<T> items,
             Function<T, String[]> mapper
     ) {
@@ -75,7 +59,7 @@ public class ReportService {
             CSVWriter writer = new CSVWriter(outputStreamWriter, ';', DEFAULT_QUOTE_CHARACTER,
                     DEFAULT_ESCAPE_CHARACTER, DEFAULT_LINE_END);
 
-            writer.writeNext(headers);
+            writer.writeNext(headers.toArray(new String[0]));
 
             for (T item : items) {
                 writer.writeNext(mapper.apply(item));
@@ -85,5 +69,69 @@ public class ReportService {
         } catch (Exception e) {
             throw new RuntimeException("Ошибка при экспорте CSV-отчета", e);
         }
+    }
+
+    private ArrayList<String> getCommonHeaders() {
+        ArrayList<String> headers = new ArrayList<>();
+        headers.add("Идентификатор");
+        headers.add("Название");
+        headers.add("Серийный номер");
+        headers.add("Инвентарный номер");
+        headers.add("Производитель");
+        headers.add("Модель");
+        headers.add("Дата покупки");
+        headers.add("Дата окончания гарантии");
+        headers.add("Статус");
+        return headers;
+    }
+
+    private ArrayList<String> getComputerHeaders() {
+        ArrayList<String> headers = getCommonHeaders();
+        headers.add("Процессор");
+        headers.add("Оперативная память (ГБ)");
+        headers.add("Хранилище (ГБ)");
+        headers.add("Видеокарта");
+        return headers;
+    }
+
+    private ArrayList<String> getPrinterHeaders() {
+        ArrayList<String> headers = getCommonHeaders();
+        headers.add("Тип принтера");
+        headers.add("Цветной");
+        headers.add("Размер бумаги");
+        return headers;
+    }
+
+    private ArrayList<String> getCommonFields(EquipmentDto equipmentDto) {
+        ArrayList<String> data = new ArrayList<>();
+        data.add(String.valueOf(equipmentDto.getId()));
+        data.add(equipmentDto.getName());
+        data.add(equipmentDto.getSerialNumber());
+        data.add(equipmentDto.getInventoryNumber());
+        data.add(equipmentDto.getManufacturer());
+        data.add(equipmentDto.getModel());
+        data.add(equipmentDto.getPurchaseDate());
+        data.add(equipmentDto.getWarrantyExpiration());
+        data.add(equipmentDto.getStatus().getValue());
+        return data;
+    }
+
+    private String[] mapComputerToData(ComputerDto computer) {
+        ArrayList<String> data = getCommonFields(computer);
+
+        data.add(computer.getCpu());
+        data.add(String.valueOf(computer.getRam()));
+        data.add(String.valueOf(computer.getStorage()));
+        data.add(computer.getGpu());
+        return data.toArray(new String[0]);
+    }
+
+    private String[] mapPrinterToData(PrinterDto printer) {
+        ArrayList<String> data = getCommonFields(printer);
+
+        data.add(printer.getPrinterType().getValue());
+        data.add(printer.getIsColor() ? "Да" : "Нет");
+        data.add(printer.getPaperSize().getValue());
+        return data.toArray(new String[0]);
     }
 }
