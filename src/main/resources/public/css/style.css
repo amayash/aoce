@@ -1,0 +1,202 @@
+html, body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h2 {
+    color: #007bff;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.section-title {
+    font-size: 1.2rem;
+    color: #343a40;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+}
+
+.request-info, .equipment-info {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.request-info div, .equipment-info div {
+    margin-bottom: 15px;
+}
+
+.request-info strong, .equipment-info strong {
+    color: #495057;
+}
+
+.equipment-info span {
+    color: #6c757d;
+}
+
+/* Стили для таблицы */
+.table {
+    background-color: #fff;
+    border-radius: 8px;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.table th {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    vertical-align: top;
+    height: 60px;
+    line-height: 1.2;
+}
+
+.table-bordered {
+    border: 1px solid #ddd;
+}
+
+.table-light {
+    background-color: #f8f9fa;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    border-radius: 5px;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.select2-container {
+    width: auto !important;
+}
+
+.form-select {
+    width: auto;
+}
+
+.shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.rounded {
+    border-radius: 10px;
+}
+
+
+.notification-card {
+    position: relative;
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.notification-card.unread {
+    background-color: #eaf3ff;
+}
+
+.notification-time {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 0.9em;
+    color: #888;
+}
+
+.mark-as-read-btn {
+    position: absolute;
+    top: 50px;
+    right: 15px;
+    font-size: 0.9em;
+}
+
+.notification-card:hover {
+    background-color: #f0f0f0;
+}
+
+.modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-dialog {
+    max-width: 80%; /* Устанавливаем максимальную ширину */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 40%;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    animation: slide-down 0.3s ease-out;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close:hover {
+    color: #ff5a5a;
+}
+
+.modal-header {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #007bff;
+}
+
+.modal-body {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.table .btn {
+    display: inline-block;
+    margin: 0 auto;
+}

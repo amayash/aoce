@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{default}"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <title>Техника</title>
+</head>
+
+<body>
+<div class="container" layout:fragment="content">
+    <h2 class="text-center">Техника</h2>
+    <div class="d-flex align-items-center mb-4">
+        <label for="currentType" class="form-label me-3 mb-0">Выберите тип техники:</label>
+        <select id="currentType" class="form-select w-auto" onchange="changeUrl()">
+            <option value="/computer" th:selected="${currentType == 'COMPUTER'}">Компьютеры</option>
+            <option value="/printer" th:selected="${currentType == 'PRINTER'}">Принтеры</option>
+        </select>
+        <button sec:authorize="hasRole('ROLE_ADMIN')" class="btn btn-primary ms-3" onclick="openCreatePage()">Добавить
+            технику
+        </button>
+        <button sec:authorize="hasRole('ROLE_USER')" class="btn btn-primary ms-3" onclick="openCreateRequestPage()">
+            Создать заявку на добавление техники
+        </button>
+        <button sec:authorize="hasRole('ROLE_ADMIN')" class="btn btn-success ms-3" onclick="exportData()">
+            Экспорт CSV
+        </button>
+    </div>
+    <center>
+        <div>
+            <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
+            <div>
+                <a th:if="${currentPage > 0}"
+                   th:href="@{'/' + ${currentType.toLowerCase()} + '?page=' + ${currentPage - 1}}">Назад</a>
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{'/' + ${currentType.toLowerCase()} + '?page=' + ${currentPage + 1}}">Вперед</a>
+            </div>
+        </div>
+    </center>
+    <div th:each="equipment : ${equipments}">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 th:text="${equipment.name}"></h3>
+                <p th:text="'Серийный номер: ' + ${equipment.serialNumber}"></p>
+            </div>
+            <div class="card-body">
+                <p th:text="'Инвентарный номер: ' + ${equipment.inventoryNumber}"></p>
+                <p th:text="'Производитель: ' + ${equipment.manufacturer}"></p>
+                <p th:text="'Модель: ' + ${equipment.model}"></p>
+                <p th:text="'Дата покупки: ' + ${equipment.purchaseDate}"></p>
+                <p th:text="'Дата окончания гарантии: ' + ${equipment.warrantyExpiration}"></p>
+                <p th:text="'Статус: ' + ${equipment.status.value}"></p>
+
+                <div th:if="${currentType == 'COMPUTER'}">
+                    <h5>Характеристики компьютера</h5>
+                    <p th:text="'Процессор: ' + ${equipment.cpu}"></p>
+                    <p th:text="'Оперативная память (ГБ): ' + ${equipment.ram}"></p>
+                    <p th:text="'Память (ГБ): ' + ${equipment.storage}"></p>
+                    <p th:text="'Графическая карта: ' + ${equipment.gpu}"></p>
+                </div>
+
+                <div th:if="${currentType == 'PRINTER'}">
+                    <h5>Характеристики принтера</h5>
+                    <p th:text="'Тип принтера: ' + ${equipment.printerType.value}"></p>
+                    <p th:text="'Цветной: ' + ${equipment.isColor ? 'Да' : 'Нет'}"></p>
+                    <p th:text="'Поддерживаемый размер печати: ' + ${equipment.paperSize.value}"></p>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <button sec:authorize="hasRole('ROLE_ADMIN')"
+                        class="btn btn-warning"
+                        th:onclick="'openEditPage(' + ${equipment.id} + ')'"
+                        th:if="${equipment.getStatus().name() != 'DECOMMISSIONED'}">
+                    Изменить
+                </button>
+                <button sec:authorize="hasRole('ROLE_USER')"
+                        class="btn btn-warning"
+                        th:onclick="'openEditRequestPage(' + ${equipment.id} + ')'"
+                        th:if="${equipment.getStatus().name() != 'DECOMMISSIONED'}">
+                    Создать заявку на изменение техники
+                </button>
+                <button sec:authorize="hasRole('ROLE_ADMIN')"
+                        class="btn btn-danger"
+                        th:onclick="'deleteEquipment(' + ${equipment.id} + ')'"
+                        th:if="${equipment.getStatus().name() != 'DECOMMISSIONED'}">
+                    Списать
+                </button>
+                <button sec:authorize="hasRole('ROLE_USER')"
+                        class="btn btn-danger"
+                        th:onclick="'deleteEquipmentRequest(' + ${equipment.id} + ')'"
+                        th:if="${equipment.getStatus().name() != 'DECOMMISSIONED'}">
+                    Создать заявку на списание техники
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Пагинация -->
+    <center>
+        <div>
+            <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
+            <div>
+                <a th:if="${currentPage > 0}"
+                   th:href="@{'/' + ${currentType.toLowerCase()} + '?page=' + ${currentPage - 1}}">Назад</a>
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{'/' + ${currentType.toLowerCase()} + '?page=' + ${currentPage + 1}}">Вперед</a>
+            </div>
+        </div>
+    </center>
+
+</div>
+<th:block layout:fragment="scripts">
+    <script>
+        function changeUrl() {
+            window.location.href = document.getElementById("currentType").value;
+        }
+
+        function openCreatePage() {
+            const currentType = document.getElementById("currentType").value;
+            window.location.href = currentType + "/create";
+        }
+
+        function openCreateRequestPage() {
+            const currentType = document.getElementById("currentType").value;
+            window.location.href = currentType + "/request/create";
+        }
+
+        function openEditPage(id) {
+            const currentType = document.getElementById("currentType").value;
+            window.location.href = currentType + "/edit/" + id;
+        }
+
+        function openEditRequestPage(id) {
+            const currentType = document.getElementById("currentType").value;
+            window.location.href = currentType + "/request/edit/" + id;
+        }
+
+        function deleteEquipment(id) {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+            const currentType = document.getElementById("currentType").value;
+            if (confirm('Вы уверены, что хотите списать эту технику?')) {
+                fetch(currentType + '/delete/' + id, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert('Ошибка при списании техники!');
+                    }
+                });
+            }
+        }
+
+        function deleteEquipmentRequest(id) {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+            const currentType = document.getElementById("currentType").value;
+            if (confirm('Вы уверены, что хотите отправить заявку на списание этой техники?')) {
+                fetch(currentType + '/request/delete/' + id, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    }
+                });
+            }
+        }
+
+        function exportData() {
+            const currentType = document.getElementById("currentType").value;
+            const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+
+            fetch('/report' + currentType, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-Token': csrfToken
+                }
+            }).then(response => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error('Ошибка при выгрузке данных!');
+                }
+            }).then(async blob => {
+                const url = window.URL.createObjectURL(await blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = currentType.slice(1) + '-data.csv';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            }).catch(error => {
+                alert(error.message);
+            });
+        }
+
+    </script>
+</th:block>
+</body>
+</html>
