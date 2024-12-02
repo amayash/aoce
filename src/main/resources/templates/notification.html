@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      layout:decorate="~{default}">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <title>Уведомления</title>
+</head>
+<body>
+<div class="container" layout:fragment="content">
+    <h2 class="mb-4">Уведомления</h2>
+    <center>
+        <div>
+            <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
+            <div>
+                <a th:if="${currentPage > 0}"
+                   th:href="@{'/notification?page=' + ${currentPage - 1}}">Назад</a>
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{'/notification?page=' + ${currentPage + 1}}">Вперед</a>
+            </div>
+        </div>
+    </center>
+    <div th:each="notification : ${notifications}"
+         class="notification-card"
+         th:data-id="${notification.id}"
+         th:data-requestid="${notification.request.id}"
+         th:data-requeststatus="${notification.request.status.name}"
+         th:data-user="${notification.user}"
+         th:data-requesttype="${notification.request.requestType.value}"
+         th:data-notificationtext="${notification.text}"
+         th:classappend="${!notification.isRead} ? 'unread'">
+        <div class="notification-header">
+            <span sec:authorize="hasRole('ROLE_ADMIN')" class="notification-title"
+                  th:text="'Запрос от: ' + ${notification.user}"></span>
+            <span class="notification-time" th:text="${notification.sentAt}"></span>
+        </div>
+        <span th:text="'Тип запроса: ' + ${notification.request.requestType.value}"></span><br>
+        <span class="request-status" th:text="'Статус запроса: ' + ${notification.request.status.value}"></span><br>
+        <span th:text="'Тип техники: ' + ${notification.request.equipmentType.value}"></span><br>
+        <button class="btn btn-success mark-as-read-btn" th:disabled="${notification.isRead}">Отметить как прочитанное
+        </button>
+    </div>
+    <center>
+        <div>
+            <span th:text="'Страница ' + ${currentPage + 1} + ' из ' + ${totalPages}"></span>
+            <div>
+                <a th:if="${currentPage > 0}"
+                   th:href="@{'/notification?page=' + ${currentPage - 1}}">Назад</a>
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{'/notification?page=' + ${currentPage + 1}}">Вперед</a>
+            </div>
+        </div>
+    </center>
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">Детали уведомления</div>
+            <div class="modal-body">
+                <p><strong>Пользователь:</strong> <span id="modalUser"></span></p>
+                <p><strong>Тип запроса:</strong> <span id="modalRequestType"></span></p>
+                <p id="modalText"></p>
+                <div class="modal-footer" style="display: flex; justify-content: center; gap: 10px;">
+                    <button sec:authorize="hasRole('ROLE_ADMIN')" id="acceptBtn" class="btn btn-success">Принять
+                    </button>
+                    <button sec:authorize="hasRole('ROLE_ADMIN')" id="rejectBtn" class="btn btn-danger">Отклонить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('notificationModal');
+            const closeModalBtn = document.querySelector('.close');
+            const modalUser = document.getElementById('modalUser');
+            const modalRequestType = document.getElementById('modalRequestType');
+            const modalText = document.getElementById('modalText');
+            const acceptBtn = document.getElementById('acceptBtn');
+            const rejectBtn = document.getElementById('rejectBtn');
+
+            const markAsRead = (card, notificationId) => {
+                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                fetch(`/notification/${notificationId}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        card.classList.remove('unread');
+                        const button = card.querySelector('.mark-as-read-btn');
+                        if (button) button.disabled = true;
+                    } else {
+                        alert('Ошибка при отметке уведомления как прочитанного.');
+                    }
+                });
+            };
+
+            document.querySelectorAll('.notification-card').forEach(card => {
+                card.addEventListener('click', function () {
+                    const requestStatus = this.dataset.requeststatus;
+                    const user = this.dataset.user;
+                    const requestType = this.dataset.requesttype;
+                    const notificationId = this.dataset.id;
+                    const requestId = this.dataset.requestid;
+                    const notificationText = this.dataset.notificationtext;
+
+                    modalUser.textContent = user;
+                    modalRequestType.textContent = requestType;
+                    modalText.innerHTML = notificationText;
+
+                    if (this.classList.contains('unread')) {
+                        markAsRead(this, notificationId);
+                    }
+
+                    modal.style.display = 'block';
+
+                    if (requestStatus === "PENDING_REVIEW" && acceptBtn && rejectBtn) {
+                        acceptBtn.style.display = 'block';
+                        rejectBtn.style.display = 'block';
+
+                        acceptBtn.onclick = () => {
+                            sendPostRequest(
+                                `/request/accept/${requestId}`,
+                                `Заявка от ${user} принята!`,
+                                'Ошибка при принятии заявки.'
+                            )
+                        };
+
+                        rejectBtn.onclick = () => {
+                            sendPostRequest(
+                                `/request/reject/${requestId}`,
+                                `Заявка от ${user} отклонена.`,
+                                'Ошибка при отклонении заявки.'
+                            )
+                        };
+
+                    } else {
+                        if (acceptBtn) acceptBtn.style.display = 'none';
+                        if (rejectBtn) rejectBtn.style.display = 'none';
+                    }
+
+                });
+            });
+
+            const sendPostRequest = (url, successMessage, errorMessage) => {
+                const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        alert(successMessage);
+                        modal.style.display = 'none';
+                        window.location.reload()
+                    } else {
+                        alert(errorMessage);
+                    }
+                }).catch(() => {
+                    alert('Произошла ошибка при обработке запроса.');
+                });
+            };
+
+            closeModalBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            document.querySelectorAll('.mark-as-read-btn').forEach(button => {
+                button.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    const card = this.closest('.notification-card');
+                    const notificationId = card.dataset.id;
+                    markAsRead(card, notificationId);
+                });
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>
