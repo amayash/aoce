@@ -78,7 +78,7 @@ public class PrinterService {
         Printer printer = getEntity(id);
         PrinterDto printerDto = new PrinterDto(printer);
         printer.setEquipmentStatus(EquipmentStatus.DECOMMISSIONED);
-        actionLogService.create(printerDto, new PrinterDto(printer), RequestType.DELETE, printer.getEquipmentType(), printer.getId(), request);
+        actionLogService.create(printerDto, null, RequestType.DELETE, printer.getEquipmentType(), printer.getId(), request);
     }
 
     public static Printer getEntity(Long id) {

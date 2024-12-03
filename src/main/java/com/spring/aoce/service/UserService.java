@@ -63,11 +63,6 @@ public class UserService implements UserDetailsService {
         return Strings.isBlank(code) || !Objects.equals(code, "111") ? UserRole.USER : UserRole.ADMIN;
     }
 
-    @Transactional
-    public void callRepositorySave(User user) {
-        userRepository.save(user);
-    }
-
     public static User findByPrincipal() {
         User user = null;
         SecurityContext securityContext = SecurityContextHolder.getContext();
