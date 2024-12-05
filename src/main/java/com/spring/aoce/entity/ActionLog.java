@@ -38,7 +38,7 @@ public class ActionLog {
     @Column(updatable = false, length = 1000)
     private String oldModel;
 
-    @Column(updatable = false, nullable = false, length = 1000)
+    @Column(updatable = false, length = 1000)
     private String newModel;
 
     @ManyToOne

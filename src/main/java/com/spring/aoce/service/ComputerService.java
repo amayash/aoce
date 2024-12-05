@@ -79,6 +79,7 @@ public class ComputerService {
         Computer computer = getEntity(id);
         ComputerDto computerDto = new ComputerDto(computer);
         computer.setEquipmentStatus(EquipmentStatus.DECOMMISSIONED);
+        computerRepository.save(computer);
         actionLogService.create(computerDto, null, RequestType.DELETE, computer.getEquipmentType(), computer.getId(), request);
     }
 

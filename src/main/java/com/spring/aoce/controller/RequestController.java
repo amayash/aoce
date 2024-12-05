@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequiredArgsConstructor
@@ -28,15 +29,15 @@ public class RequestController {
 
     @PostMapping("/accept/{id}")
     @Secured({UserRole.AsString.ADMIN})
-    public String accept(Model model, @PathVariable Long id) {
+    public ModelAndView accept(Model model, @PathVariable Long id) {
         requestService.accept(id);
-        return "notification";
+        return new ModelAndView("redirect:/notification");
     }
 
     @PostMapping("/reject/{id}")
     @Secured({UserRole.AsString.ADMIN})
     public String reject(Model model, @PathVariable Long id) {
         requestService.reject(id);
-        return "notification";
+        return "redirect:/notification";
     }
 }

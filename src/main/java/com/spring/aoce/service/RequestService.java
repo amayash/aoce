@@ -161,6 +161,9 @@ public class RequestService {
     @Transactional
     public void accept(Long id) {
         Request request = getEntity(id);
+        if (request.getStatus() != RequestStatus.PENDING_REVIEW) {
+            throw new RuntimeException("Заявка уже обработана.");
+        }
         if (request.getRequestType().equals(RequestType.INSERT)) {
             if (request instanceof RequestComputer) {
                 ComputerDto equipmentDto = buildComputerDto((RequestComputer) request);

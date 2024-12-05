@@ -15,15 +15,9 @@
             <option value="/computer" th:selected="${currentType == 'COMPUTER'}">Компьютеры</option>
             <option value="/printer" th:selected="${currentType == 'PRINTER'}">Принтеры</option>
         </select>
-        <button sec:authorize="hasRole('ROLE_ADMIN')" class="btn btn-primary ms-3" onclick="openCreatePage()">Добавить
-            технику
-        </button>
-        <button sec:authorize="hasRole('ROLE_USER')" class="btn btn-primary ms-3" onclick="openCreateRequestPage()">
-            Создать заявку на добавление техники
-        </button>
-        <button sec:authorize="hasRole('ROLE_ADMIN')" class="btn btn-success ms-3" onclick="exportData()">
-            Экспорт CSV
-        </button>
+        <button sec:authorize="hasRole('ROLE_ADMIN')" class="btn btn-primary ms-3" onclick="openCreatePage()">Добавить технику</button>
+        <button sec:authorize="hasRole('ROLE_USER')" class="btn btn-primary ms-3" onclick="openCreateRequestPage()">Создать заявку на добавление техники</button>
+        <button sec:authorize="hasRole('ROLE_ADMIN')" class="btn btn-success ms-3" onclick="exportData()">Экспорт CSV</button>
     </div>
     <center>
         <div>
