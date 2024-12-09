@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,7 +50,7 @@ public class ActionLog {
     @JoinColumn(name = "equipment_id", updatable = false, nullable = false)
     private Equipment equipment;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "request_id", updatable = false)
     private Request request;
 }
